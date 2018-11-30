@@ -1,0 +1,24 @@
+.loader {
+    height: 30px;
+    background: red;
+    animation: bounce infinite 1s;
+}
+
+@keyframes bounce {
+    0% {
+        width: 100%;
+    }
+
+    50% {
+        width: 10%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}

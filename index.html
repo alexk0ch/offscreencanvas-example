@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="us">
+    <head>
+        <title>ImageProcessing Worker</title>
+        <link rel="stylesheet" href="./styles.css">
+    </head>
+    <body>
+        <section>
+            <header class="loader"></header>
+            <article>
+                <div>
+                    <input type="range" id="range" min="0" max="25" value="0" style="width: 300px" />
+                </div>
+                <canvas id="cvs" width="3114px" height="1200px"></canvas>
+            </article>
+        </section>
+        <script src="./my-web-worker.js"></script>
+        <script>
+            const webWorker = new MyWebWorker();
+            const rangeInput = document.getElementById('range');
+
+            fetch('./image.jpg')
+              .then(response => response.blob())
+              .then(blob => createImageBitmap(blob))
+              .then(imageBitmap => {
+                webWorker.sendBitmap(imageBitmap);
+              });
+
+            let prevValue = rangeInput.value;
+
+            const frame = () => {
+              if (prevValue !== Number(rangeInput.value) && Number(rangeInput.value)) {
+                setTimeout(() => {
+                  prevValue = Number(rangeInput.value);
+                  webWorker.setValue(prevValue);
+                }, 0);
+              }
+              requestAnimationFrame(frame);
+            };
+
+            window.loadGPU = () => {
+              webWorker.loadGPU();
+            };
+
+            let timerId;
+            let prevDateNow;
+
+            window.startCounting = () => {
+              timerId = setInterval(() => {
+                if (prevDateNow) console.log(`diff: [${Date.now() - prevDateNow}]; dateNow: ${Date.now()}`);
+                prevDateNow = Date.now();
+              }, 100);
+            };
+
+            window.stopCounting = () => {
+              clearInterval(timerId);
+            };
+
+            window.test = () => {
+              window.loadGPU();
+              window.startCounting();
+              setTimeout(window.stopCounting, 3000);
+            };
+
+            frame();
+        </script>
+    </body>
+</html>
+
